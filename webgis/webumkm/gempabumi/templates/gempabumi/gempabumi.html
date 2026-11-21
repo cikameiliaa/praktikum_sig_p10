@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Peta Gempa Bumi Indonesia</title>
+
+    <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background: #1f4e79;
+            color: white;
+            padding: 15px 20px;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 58px);
+        }
+
+        .sidebar {
+            width: 340px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+        }
+
+        .gempa-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            border-left: 5px solid #f39c12;
+        }
+
+        .gempa-item:hover {
+            background: #e8f1f8;
+        }
+
+        .map-area {
+            flex: 1;
+            min-width: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .badge {
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .red { background: #e53935; }
+        .orange { background: #f39c12; }
+        .green { background: #269b55; }
+
+        .legend {
+            background: white;
+            padding: 12px;
+            line-height: 25px;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 9px 14px;
+            border: none;
+            background: #1f4e79;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @media(max-width: 700px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 40%;
+            }
+
+            .map-area {
+                height: 60%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>15 Gempa Terkini (M 5.0+)</h2>
+    <p>Data Gempa Bumi Indonesia - BMKG</p>
+</header>
+
+<div class="container">
+
+    <div class="sidebar">
+        <button onclick="location.reload()">
+            Muat Ulang Data
+        </button>
+
+        <h3>Daftar Gempa Terbaru</h3>
+
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+
+        {% for g in gempa %}
+        <div class="gempa-item"
+                data-index="{{ forloop.counter0 }}"
+                onclick="fokusGempa(Number(this.dataset.index))">
+
+            <span class="badge
+                {% if g.Kedalaman|slice:':-3'|add:'0' < 70 %}
+                    red
+                {% elif g.Kedalaman|slice:':-3'|add:'0' <= 300 %}
+                    orange
+                {% else %}
+                    green
+                {% endif %}">
+                M {{ g.Magnitude }}
+            </span>
+
+            <p><b>{{ g.Wilayah }}</b></p>
+
+            <small>
+                {{ g.Tanggal }} {{ g.Jam }}<br>
+                Kedalaman: {{ g.Kedalaman }}
+            </small>
+        </div>
+        {% empty %}
+            <p>Belum ada data gempa.</p>
+        {% endfor %}
+    </div>
+
+    <div class="map-area">
+        <div id="map"></div>
+    </div>
+
+</div>
+
+{{ gempa|json_script:"data-gempa" }}
+
+<script>
+
+    const dataGempa = JSON.parse(
+        document.getElementById("data-gempa").textContent
+    );
+
+    const map = L.map('map').setView([-2.5, 118], 5);
+
+    L.tileLayer(
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap contributors'
+        }
+    ).addTo(map);
+
+    let markers = [];
+
+    function warnaKedalaman(kedalaman) {
+        const depth = parseFloat(kedalaman);
+
+        if (depth < 70) return '#e53935';
+        if (depth <= 300) return '#f39c12';
+
+        return '#269b55';
+    }
+
+    function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, function(c) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[c];
+        });
+    }
+
+    dataGempa.forEach((g, index) => {
+
+        const koordinat = g.Coordinates.split(',');
+
+        const lat = parseFloat(koordinat[0]);
+        const lon = parseFloat(koordinat[1]);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+            return;
+        }
+
+        const marker = L.circleMarker([lat, lon], {
+            radius: Math.max(7, parseFloat(g.Magnitude) * 2),
+            color: warnaKedalaman(g.Kedalaman),
+            fillColor: warnaKedalaman(g.Kedalaman),
+            fillOpacity: 0.8,
+            weight: 2
+        }).addTo(map);
+
+        marker.bindPopup(`
+            <b>Gempa Bumi</b><br>
+            Magnitude: ${escapeHTML(g.Magnitude)}<br>
+            Wilayah: ${escapeHTML(g.Wilayah)}<br>
+            Tanggal: ${escapeHTML(g.Tanggal)}<br>
+            Jam: ${escapeHTML(g.Jam)}<br>
+            Kedalaman: ${escapeHTML(g.Kedalaman)}<br>
+            Potensi: ${escapeHTML(g.Potensi)}
+        `);
+
+        markers[index] = marker;
+    });
+
+    function fokusGempa(index) {
+        const marker = markers[index];
+
+        if (marker) {
+            map.setView(marker.getLatLng(), 7);
+            marker.openPopup();
+        }
+    }
+
+    const legend = L.control({ position: 'bottomright' });
+
+    legend.onAdd = function() {
+        const div = L.DomUtil.create('div', 'legend');
+
+        div.innerHTML = `
+            <b>Kedalaman Gempa</b><br>
+            <span style="color:#e53935">●</span> Dangkal (< 70 km)<br>
+            <span style="color:#f39c12">●</span> Menengah (70–300 km)<br>
+            <span style="color:#269b55">●</span> Dalam (> 300 km)<br>
+            <small>Ukuran lingkaran = Magnitude</small>
+        `;
+
+        return div;
+    };
+
+    legend.addTo(map);
+
+    L.control.scale({
+        imperial: false
+    }).addTo(map);
+
+</script>
+
+</body>
+</html>
