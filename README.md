@@ -1,1 +1,1 @@
-# praktikum_sig_p10
+# praktikum_sig_django
