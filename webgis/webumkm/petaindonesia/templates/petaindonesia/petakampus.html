@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peta Kampus Depok</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="color: blue;">Peta Kampus</h1>
+
+    <div id="map"></div>
+
+    <script>
+        // Inisialisasi peta
+        var map = L.map('map').setView([-6.4025, 106.7949], 13);
+
+        // Tambahkan layer peta dasar OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Tambahkan marker untuk kampus
+        var marker = L.marker([-6.4025, 106.7949]).addTo(map);
+        marker.bindPopup("<b>Kampus A STT NF Depok</b><br>Jl. Setu Indah");
+
+        var marker2 = L.marker([-6.4020, 106.7955]).addTo(map);
+        marker2.bindPopup("<b>Kampus B STT NF Depok</b><br>Jl. Raya Lenteng Agung");
+
+        // Data GeoJSON
+        var geojsonData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "nama": "Kampus UI Depok"
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            106.8267876,
+                            -6.3653815
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "nama": "Kampus H Gunadarma"
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            106.8373455,
+                            -6.3528957
+                        ]
+                    }
+                }
+            ]
+        };
+
+        // Tampilkan data GeoJSON pada peta
+        L.geoJSON(geojsonData, {
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup("<b>" + feature.properties.nama + "</b>");
+            }
+        }).addTo(map);
+
+    </script>
+</body>
+</html>

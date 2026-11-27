@@ -1,0 +1,8 @@
+[
+  {"kode": 31, "nama": "DKI Jakarta", "tahun": 2024, "penduduk": 10700000, "luas_wilayah_km2": 664, "jumlah_petani": 20000, "luas_lahan_ha": 600},
+  {"kode": 32, "nama": "Jawa Barat", "tahun": 2024, "penduduk": 50300000, "luas_wilayah_km2": 35378, "jumlah_petani": 3200000, "luas_lahan_ha": 1700000},
+  {"kode": 33, "nama": "Jawa Tengah", "tahun": 2024, "penduduk": 38200000, "luas_wilayah_km2": 34337, "jumlah_petani": 4500000, "luas_lahan_ha": 1900000},
+  {"kode": 34, "nama": "DI Yogyakarta", "tahun": 2024, "penduduk": 3800000, "luas_wilayah_km2": 3133, "jumlah_petani": 450000, "luas_lahan_ha": 150000},
+  {"kode": 35, "nama": "Jawa Timur", "tahun": 2024, "penduduk": 41800000, "luas_wilayah_km2": 47800, "jumlah_petani": 4800000, "luas_lahan_ha": 2300000},
+  {"kode": 36, "nama": "Banten", "tahun": 2024, "penduduk": 12400000, "luas_wilayah_km2": 9663, "jumlah_petani": 700000, "luas_lahan_ha": 350000}
+]

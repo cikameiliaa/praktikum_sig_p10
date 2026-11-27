@@ -1,6 +1,19 @@
-Include/
-Lib/
-Scripts/
-pyvenv.cfg
+# Python
 __pycache__/
+*.py[cod]
 *.pyc
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Django
+db.sqlite3
+*.log
+
+# Environment
+.env
+
+# VS Code
+.vscode/
